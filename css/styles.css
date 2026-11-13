@@ -310,7 +310,8 @@ button.chip:hover { border-color: var(--accent); }
 
 @media (max-width: 1000px) {
   body { overflow: auto; }
-  .app { grid-template-columns: 1fr; height: auto; }
+  .app { grid-template-columns: minmax(0, 1fr); height: auto; }
+  .sidebar { min-width: 0; }
   .sidebar { flex-direction: row; flex-wrap: wrap; align-items: center; gap: 8px; padding: 10px 14px; border-right: 0; border-bottom: 1px solid var(--border); }
   .brand { padding: 0 12px 0 0; }
   .nav { display: flex; flex-wrap: wrap; gap: 4px; overflow: visible; }
@@ -321,4 +322,36 @@ button.chip:hover { border-color: var(--accent); }
   .stage { height: 60vh; min-height: 380px; order: -1; }
   .panel { overflow: visible; border: 0 !important; }
   .toasts { width: calc(100% - 40px); }
+}
+
+/* ---------- Teléfonos ---------- */
+
+@media (max-width: 700px) {
+  .sidebar { flex-wrap: nowrap; padding: 8px 12px; gap: 10px; }
+  .brand { flex: none; padding: 0; }
+  .brand__name { font-size: 16px; }
+  .brand__sub { display: none; }
+  .nav { flex: 1; flex-wrap: nowrap; gap: 2px; overflow-x: auto; scrollbar-width: none; }
+  .nav::-webkit-scrollbar { display: none; }
+  .nav__item { flex: none; padding: 6px 10px; white-space: nowrap; }
+
+  .topbar { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 10px 12px; }
+  .topbar__controls { display: contents; }
+  .topbar h1 { order: 0; font-size: 17px; align-self: center; }
+  .lang { order: 1; justify-self: end; }
+  .control { order: 2; flex-direction: column; align-items: stretch; gap: 2px; min-width: 0; }
+  .control select { width: 100%; max-width: none; }
+  .readout strong { font-size: 12px; white-space: nowrap; }
+  .readout { order: 3; flex-direction: row; align-items: baseline; justify-content: space-between; gap: 6px; padding: 6px 8px; border: 1px solid var(--border); border-radius: var(--radius); }
+
+  .stage { height: 50vh; min-height: 300px; }
+  .stage__hint { font-size: 11px; padding: 0 8px; text-align: center; }
+  .page { padding: 14px 12px; }
+  .grid--4 { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .grid--trends { grid-template-columns: 1fr; }
+  .toasts { right: 10px; bottom: 10px; width: calc(100% - 20px); }
+}
+
+@media (max-width: 380px) {
+  .grid--4 { grid-template-columns: 1fr; }
 }
