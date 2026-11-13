@@ -6,6 +6,7 @@ import { INDICATORS } from '../config/indicators.js';
 import { crewLevel, levelOf, formatValue } from '../core/health.js';
 import { badge, list, section, handleGoto, firstName } from '../ui/components.js';
 import { escapeHtml, pad2 } from '../core/utils.js';
+import { t } from '../i18n/i18n.js';
 
 const unique = (items) => [...new Set(items)];
 const groupBy = (items, key) => items.reduce((acc, item) => ((acc[item[key]] ??= []).push(item), acc), {});
@@ -19,16 +20,16 @@ export class AssessmentView {
   mount({ page }) {
     this.page = page;
     page.innerHTML = `
-      <p class="page__intro">Herramientas para que el astronauta evalúe cómo se siente y sepa qué hacer. Es una guía de apoyo: no reemplaza el protocolo médico de a bordo.</p>
+      <p class="page__intro">${t('Herramientas para que el astronauta evalúe cómo se siente y sepa qué hacer. Es una guía de apoyo: no reemplaza el protocolo médico de a bordo.')}</p>
       <div class="grid grid--2">
         ${section('Evaluación de síntomas', `
-          <p class="muted">Marca lo que sientes ahora. ASTRA indica la urgencia y los pasos a seguir.</p>
-          <form data-ref="symptomForm">${this.#symptomFields()}<button class="btn btn--primary" type="submit">Evaluar síntomas</button></form>
+          <p class="muted">${t('Marca lo que sientes ahora. ASTRA indica la urgencia y los pasos a seguir.')}</p>
+          <form data-ref="symptomForm">${this.#symptomFields()}<button class="btn btn--primary" type="submit">${t('Evaluar síntomas')}</button></form>
           <div data-ref="symptomResult"></div>`)}
         <div class="stack">
           ${section('Chequeo de bienestar', `
-            <p class="muted">Responde de 1 (nada) a 5 (totalmente) pensando en los últimos días.</p>
-            <form data-ref="wellbeingForm">${this.#wellbeingFields()}<button class="btn btn--primary" type="submit">Calcular bienestar</button></form>
+            <p class="muted">${t('Responde de 1 (nada) a 5 (totalmente) pensando en los últimos días.')}</p>
+            <form data-ref="wellbeingForm">${this.#wellbeingFields()}<button class="btn btn--primary" type="submit">${t('Calcular bienestar')}</button></form>
             <div data-ref="wellbeingResult"></div>`)}
           <div data-ref="context"></div>
         </div>
@@ -48,7 +49,7 @@ export class AssessmentView {
   }
 
   update() {
-    this.page.querySelector('[data-ref="context"]').innerHTML = section(`Contexto de ${firstName(store.selectedCrew.name)}`, this.#context());
+    this.page.querySelector('[data-ref="context"]').innerHTML = section(t('Contexto de {name}', { name: firstName(store.selectedCrew.name) }), this.#context());
   }
 
   /* ---------- Formularios ---------- */
@@ -74,7 +75,7 @@ export class AssessmentView {
     const ids = new Set(new FormData(form).getAll('symptom'));
     const selected = SYMPTOMS.filter((s) => ids.has(s.id));
     if (!selected.length) {
-      target.innerHTML = '<p class="form-status form-status--error">Selecciona al menos un síntoma.</p>';
+      target.innerHTML = `<p class="form-status form-status--error">${t('Selecciona al menos un síntoma.')}</p>`;
       return;
     }
 
@@ -88,16 +89,16 @@ export class AssessmentView {
     const actions = unique(selected.flatMap((s) => s.actions)).slice(0, 8);
     const parts = unique(selected.map((s) => s.part));
 
-    store.addReport(astronaut.id, { symptoms: selected.map((s) => s.label), severity });
+    store.addReport(astronaut.id, { symptoms: selected.map((s) => s.id), severity });
 
     target.innerHTML = `
       <div class="result result--${severity}">
-        <div class="result__head">${badge(severity, SEVERITY_LABELS[severity])}<span class="muted">${selected.length} síntoma(s) · ${astronaut.name}</span></div>
-        <h3>Causas posibles</h3>${list(causes)}
-        <h3>Qué hacer ahora</h3>${list(actions)}
-        <h3>Sistemas relacionados</h3>
+        <div class="result__head">${badge(severity, SEVERITY_LABELS[severity])}<span class="muted">${t('{n} síntoma(s) · {name}', { n: selected.length, name: astronaut.name })}</span></div>
+        <h3>${t('Causas posibles')}</h3>${list(causes)}
+        <h3>${t('Qué hacer ahora')}</h3>${list(actions)}
+        <h3>${t('Sistemas relacionados')}</h3>
         <div class="chips">${parts.map((id) => `<button type="button" class="chip" data-goto="crew" data-part="${id}">${BODY_PART_MAP[id].name}</button>`).join('')}</div>
-        ${vitalLevel >= 2 ? '<p class="note">Además, hay indicadores vitales fuera de rango que elevaron la prioridad.</p>' : ''}
+        ${vitalLevel >= 2 ? `<p class="note">${t('Además, hay indicadores vitales fuera de rango que elevaron la prioridad.')}</p>` : ''}
       </div>`;
   }
 
@@ -108,7 +109,7 @@ export class AssessmentView {
     const data = new FormData(form);
     const answers = WELLBEING_QUESTIONS.map((q) => ({ id: q.id, value: Number(data.get(q.id)) }));
     if (answers.some((a) => !a.value)) {
-      target.innerHTML = '<p class="form-status form-status--error">Responde las seis preguntas.</p>';
+      target.innerHTML = `<p class="form-status form-status--error">${t('Responde las seis preguntas.')}</p>`;
       return;
     }
 
@@ -118,15 +119,15 @@ export class AssessmentView {
     const lowest = [...answers].sort((a, b) => a.value - b.value).slice(0, 2).filter((a) => a.value <= 3);
     const tips = lowest.flatMap((a) => WELLBEING_TIPS[a.id]);
 
-    store.addCheckin(store.selectedCrewId, { mean: Number(mean.toFixed(1)), score, label: band.label });
+    store.addCheckin(store.selectedCrewId, { mean: Number(mean.toFixed(1)), score, level: band.level });
     form.reset();
 
     target.innerHTML = `
       <div class="result result--${band.level}">
         <div class="result__head">${badge(band.level, band.label)}<strong class="result__score">${score}<small>/100</small></strong></div>
         <p>${band.advice}</p>
-        ${tips.length ? `<h3>Recomendaciones</h3>${list(tips)}` : ''}
-        <p class="muted">El estado de ánimo registrado se actualizó a ${mean.toFixed(1)} de 5.</p>
+        ${tips.length ? `<h3>${t('Recomendaciones')}</h3>${list(tips)}` : ''}
+        <p class="muted">${t('El estado de ánimo registrado se actualizó a {value} de 5.', { value: mean.toFixed(1) })}</p>
       </div>`;
   }
 
@@ -139,18 +140,18 @@ export class AssessmentView {
       .filter((x) => x.level >= 1);
     const vitals = flagged.length
       ? `<ul class="plain-list">${flagged.map(({ i, level }) => `<li>${i.name}: <strong>${formatValue(i, astronaut.vitals[i.id])} ${i.unit}</strong> ${badge(level)}</li>`).join('')}</ul>`
-      : '<p class="empty">Todos los indicadores están en rango normal.</p>';
+      : `<p class="empty">${t('Todos los indicadores están en rango normal.')}</p>`;
 
     const reports = store.reports.filter((r) => r.crewId === astronaut.id).slice(0, 3);
     const time = (d) => `${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
     const history = reports.length
-      ? `<ul class="plain-list">${reports.map((r) => `<li><time>${time(r.time)}</time> ${escapeHtml(r.symptoms.join(', '))}</li>`).join('')}</ul>`
-      : '<p class="empty">Aún no hay evaluaciones de síntomas.</p>';
+      ? `<ul class="plain-list">${reports.map((r) => `<li><time>${time(r.time)}</time> ${escapeHtml(r.symptoms.map((id) => SYMPTOMS.find((s) => s.id === id).label).join(', '))}</li>`).join('')}</ul>`
+      : `<p class="empty">${t('Aún no hay evaluaciones de síntomas.')}</p>`;
     const checkin = astronaut.checkins[0];
     return `
-      <h3>Indicadores a vigilar</h3>${vitals}
-      <h3>Últimas evaluaciones</h3>${history}
-      <h3>Último chequeo de bienestar</h3>
-      ${checkin ? `<p>${checkin.score}/100 · ${checkin.label}</p>` : '<p class="empty">Aún no hay chequeos.</p>'}`;
+      <h3>${t('Indicadores a vigilar')}</h3>${vitals}
+      <h3>${t('Últimas evaluaciones')}</h3>${history}
+      <h3>${t('Último chequeo de bienestar')}</h3>
+      ${checkin ? `<p>${checkin.score}/100 · ${WELLBEING_BANDS.find((b) => b.level === checkin.level).label}</p>` : `<p class="empty">${t('Aún no hay chequeos.')}</p>`}`;
   }
 }

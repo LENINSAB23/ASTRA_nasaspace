@@ -7,6 +7,7 @@ import { levelOf } from '../core/health.js';
 import { CAREER_DOSE_LIMIT_MSV, SOLAR_EVENT_LIMIT_MSV, daysToLimit } from '../core/insights.js';
 import { badge, colorBar, list, stat, section, firstName } from '../ui/components.js';
 import { drawLineChart, SERIES_COLORS } from '../ui/chart.js';
+import { t } from '../i18n/i18n.js';
 
 const STORM_STEPS = [
   'Ir de inmediato al refugio blindado de la nave.',
@@ -15,7 +16,7 @@ const STORM_STEPS = [
   'Leer el dosímetro personal al salir y registrar la dosis.'
 ];
 
-const RADIATION_LINK = RESOURCES.find((r) => r.source === 'CSA' && r.title.startsWith('Monitoreo'));
+const RADIATION_LINK = RESOURCES.find((r) => r.id === 'csa-radiation');
 
 /** Monitoreo de radiación: dosis acumulada frente a los límites de la NASA, tasa diaria y qué hacer ante una tormenta solar. */
 export class RadiationView {
@@ -26,7 +27,7 @@ export class RadiationView {
   mount({ page }) {
     this.page = page;
     page.innerHTML = `
-      <p class="page__intro">La radiación espacial es el peligro que más crece en misiones largas fuera de la órbita terrestre. Aquí se sigue la dosis diaria y la acumulada de cada astronauta.</p>
+      <p class="page__intro">${t('La radiación espacial es el peligro que más crece en misiones largas fuera de la órbita terrestre. Aquí se sigue la dosis diaria y la acumulada de cada astronauta.')}</p>
       <div class="grid grid--4" data-ref="stats"></div>
       <div class="grid grid--2">
         <div data-ref="doses"></div>
@@ -52,7 +53,7 @@ export class RadiationView {
     $('stats').innerHTML = this.#stats();
     $('doses').innerHTML = section('Dosis acumulada de carrera', this.#doses());
     $('chart').innerHTML = section('Tasa de dosis diaria', `
-      <canvas class="chart" aria-label="Tasa de dosis diaria por astronauta"></canvas>
+      <canvas class="chart" aria-label="${t('Tasa de dosis diaria por astronauta')}"></canvas>
       <div class="legend">${store.crew.map((c, i) => `<span><i style="background:${SERIES_COLORS[i]}"></i>${firstName(c.name)}</span>`).join('')}</div>`);
     $('environments').innerHTML = section('Dosis diaria típica por entorno', this.#environments());
     $('storm').innerHTML = section('Tormenta solar', this.#storm());
@@ -63,7 +64,7 @@ export class RadiationView {
       {
         min: 0,
         bands: [{ from: 0, to: 1.3, color: 'rgba(63,178,127,0.10)' }],
-        lines: [{ value: 1.3, color: '#3fb27f', label: 'Referencia NASA en espacio libre: 1,3 mSv/día' }, { value: 2.5, color: '#e0b341', label: 'Precaución' }]
+        lines: [{ value: 1.3, color: '#3fb27f', label: t('Referencia NASA en espacio libre: 1,3 mSv/día') }, { value: 2.5, color: '#e0b341', label: t('Precaución') }]
       }
     );
   }
@@ -73,8 +74,8 @@ export class RadiationView {
     const shield = Math.round(65 - 35 * store.shipDamage.shield);
     const storm = store.stormTicks > 0;
     return [
-      stat('Tasa media actual', `${avg.toFixed(2)} mSv/día`, store.environment.name),
-      stat('Clima espacial', storm ? 'Tormenta solar' : 'Sin eventos', storm ? 'Refugiarse en el blindaje' : 'Condiciones habituales'),
+      stat('Tasa media actual', `${avg.toFixed(2)} ${t('mSv/día')}`, store.environment.name),
+      stat('Clima espacial', t(storm ? 'Tormenta solar' : 'Sin eventos'), storm ? 'Refugiarse en el blindaje' : 'Condiciones habituales'),
       stat('Atenuación del blindaje', `${shield} %`, 'Refugio de la nave'),
       stat('Límite por evento solar', `${SOLAR_EVENT_LIMIT_MSV} mSv`, 'NASA-STD-3001')
     ].join('');
@@ -96,29 +97,30 @@ export class RadiationView {
     }).join('');
     return `
       <div class="table-wrap"><table class="data-table">
-        <thead><tr><th>Astronauta</th><th>Dosis de ${CAREER_DOSE_LIMIT_MSV} mSv</th><th>mSv/día</th><th>Días al límite</th><th>Tasa</th></tr></thead>
+        <thead><tr><th>${t('Astronauta')}</th><th>${t('Dosis de {limit} mSv', { limit: CAREER_DOSE_LIMIT_MSV })}</th><th>${t('mSv/día')}</th><th>${t('Días al límite')}</th><th>${t('Tasa')}</th></tr></thead>
         <tbody>${rows}</tbody>
       </table></div>
-      <p class="muted">Límite de carrera de la NASA: ${CAREER_DOSE_LIMIT_MSV} mSv, igual para todos los astronautas. Los días al límite se calculan con la tasa actual. Valores simulados.</p>`;
+      <p class="muted">${t('Límite de carrera de la NASA: {limit} mSv, igual para todos los astronautas. Los días al límite se calculan con la tasa actual. Valores simulados.', { limit: CAREER_DOSE_LIMIT_MSV })}</p>`;
   }
 
   #environments() {
     const max = Math.max(...ENVIRONMENTS.map((e) => e.radiation));
     return `
       <ul class="meter-list">${ENVIRONMENTS.map((e) => `
-        <li><div class="meter-list__head"><span>${e.name}${e.id === store.environmentId ? ' (actual)' : ''}</span><span>${e.radiation.toFixed(1)} mSv/día</span></div>${colorBar(e.radiation / max)}</li>`).join('')}</ul>
-      <p class="muted">Valores de referencia para la demostración. La atmósfera, el suelo y el campo magnético cambian la exposición en cada lugar.</p>`;
+        <li><div class="meter-list__head"><span>${e.name}${e.id === store.environmentId ? ` (${t('actual')})` : ''}</span><span>${e.radiation.toFixed(1)} ${t('mSv/día')}</span></div>${colorBar(e.radiation / max)}</li>`).join('')}</ul>
+      <p class="muted">${t('Valores de referencia para la demostración. La atmósfera, el suelo y el campo magnético cambian la exposición en cada lugar.')}</p>
+      <p class="muted">${t('Según la CSA, los neutrones son cerca del 30 % de la radiación dentro de los vehículos espaciales y exigen protección específica.')}</p>`;
   }
 
   #storm() {
     const active = store.stormTicks > 0;
     return `
-      ${active ? `<div class="callout">${badge(3, 'Tormenta solar activa')} Refugiarse en el blindaje de la nave.</div>` : '<p class="muted">Sin eventos activos. En una tormenta solar la dosis puede subir varias veces en pocas horas.</p>'}
-      <h3>Qué hacer</h3>${list(STORM_STEPS)}
+      ${active ? `<div class="callout">${badge(3, 'Tormenta solar activa')} ${t('Refugiarse en el blindaje de la nave.')}</div>` : `<p class="muted">${t('Sin eventos activos. En una tormenta solar la dosis puede subir varias veces en pocas horas.')}</p>`}
+      <h3>${t('Qué hacer')}</h3>${list(STORM_STEPS)}
       <div class="button-row">
-        <button class="btn" data-event="solar-storm">Simular tormenta solar</button>
-        ${RADIATION_LINK ? `<a class="btn" href="${RADIATION_LINK.url}" target="_blank" rel="noopener">Recurso de la CSA</a>` : ''}
+        <button class="btn" data-event="solar-storm">${t('Simular tormenta solar')}</button>
+        ${RADIATION_LINK ? `<a class="btn" href="${RADIATION_LINK.url}" target="_blank" rel="noopener">${t('Recurso de la CSA')}</a>` : ''}
       </div>
-      <p class="muted">Estado: ${LEVELS[active ? 3 : 0].label}.</p>`;
+      <p class="muted">${t('Estado: {state}.', { state: LEVELS[active ? 3 : 0].label })}</p>`;
   }
 }

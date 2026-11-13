@@ -1,9 +1,11 @@
+import { localized } from '../i18n/i18n.js';
+
 /**
  * Recordatorios periódicos de salud.
  * `every` y `first` están en ciclos de simulación (1 ciclo ≈ 3 s): en la demostración los intervalos van acelerados.
  * `task` enlaza con la rutina diaria (js/data/crew.js) para sumar puntos al completarlo.
  */
-export const SCHEDULE = [
+export const SCHEDULE = localized([
   { id: 'bp', label: 'Medir presión arterial y pulso', detail: 'Sentado y tras 5 minutos de reposo.', every: 60, first: 9, task: 'vitals' },
   { id: 'water', label: 'Beber 500 mL de agua', detail: 'La sed se percibe menos en microgravedad.', every: 45, first: 18, task: 'water' },
   { id: 'mood', label: 'Hacer el chequeo de bienestar', detail: 'Dos minutos en la sección Autoevaluación.', every: 90, first: 30, task: 'mood' },
@@ -12,4 +14,4 @@ export const SCHEDULE = [
   { id: 'glucose', label: 'Medir glucosa en ayunas', detail: 'Antes de la primera comida.', every: 150, first: 70, task: null },
   { id: 'suit', label: 'Inspeccionar el traje espacial', detail: 'Antes de cada actividad extravehicular.', every: 180, first: 85, task: 'suit' },
   { id: 'sleep', label: 'Preparar el descanso', detail: 'Luz tenue y sin pantallas durante la última hora.', every: 200, first: 100, task: null }
-];
+]);

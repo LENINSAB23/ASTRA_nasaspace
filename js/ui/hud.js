@@ -3,6 +3,7 @@ import { CREW } from '../data/crew.js';
 import { ENVIRONMENTS } from '../config/environments.js';
 import { LEVELS } from '../core/status.js';
 import { $, escapeHtml, pad2 } from '../core/utils.js';
+import { onLangChange } from '../i18n/i18n.js';
 
 const VISIBLE_ALERTS = 4;
 
@@ -14,8 +15,11 @@ export function initHud() {
   const counter = $('#alert-count');
   const log = $('#alert-log');
 
-  crewSelect.innerHTML = CREW.map((c) => `<option value="${c.id}">${c.name}</option>`).join('');
-  envSelect.innerHTML = ENVIRONMENTS.map((e) => `<option value="${e.id}">${e.name} · ${e.gravity}</option>`).join('');
+  const fillSelects = () => {
+    crewSelect.innerHTML = CREW.map((c) => `<option value="${c.id}">${c.name}</option>`).join('');
+    envSelect.innerHTML = ENVIRONMENTS.map((e) => `<option value="${e.id}">${e.name} · ${e.gravity}</option>`).join('');
+  };
+  fillSelects();
   crewSelect.addEventListener('change', () => store.selectCrew(crewSelect.value));
   envSelect.addEventListener('change', () => store.setEnvironment(envSelect.value));
 
@@ -27,12 +31,13 @@ export function initHud() {
     counter.classList.toggle('is-active', active > 0);
     log.innerHTML = store.alerts.slice(0, VISIBLE_ALERTS).map((a) => {
       const t = a.time;
-      return `<li class="log__item log__item--${LEVELS[a.level].id}"><time>${pad2(t.getHours())}:${pad2(t.getMinutes())}:${pad2(t.getSeconds())}</time>${escapeHtml(a.text)}</li>`;
+      return `<li class="log__item log__item--${LEVELS[a.level].id}"><time>${pad2(t.getHours())}:${pad2(t.getMinutes())}:${pad2(t.getSeconds())}</time>${escapeHtml(a.text())}</li>`;
     }).join('');
   };
 
   setInterval(() => { clock.textContent = store.missionClock(); }, 1000);
   clock.textContent = store.missionClock();
   store.subscribe(render);
+  onLangChange(() => { fillSelects(); render(); clock.textContent = store.missionClock(); });
   render();
 }

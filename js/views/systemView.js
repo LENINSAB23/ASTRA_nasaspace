@@ -2,6 +2,7 @@ import { store } from '../core/store.js';
 import { metricValue } from '../data/metric.js';
 import { LEVELS, levelFromRisk } from '../core/status.js';
 import { badge, riskBar, list } from '../ui/components.js';
+import { t } from '../i18n/i18n.js';
 
 /**
  * Vista genérica para sistemas con partes dañables: nave espacial y traje.
@@ -82,7 +83,7 @@ export class SystemView {
     const part = this.partMap[id];
     const damage = store.damageMap(this.kind)[id];
     this.stage.showTooltip(
-      `<strong>${part.name}</strong><span>Integridad ${Math.round((1 - damage) * 100)} % · ${LEVELS[levelFromRisk(damage)].label}</span>`, x, y
+      `<strong>${part.name}</strong><span>${t('Integridad {pct} % · {level}', { pct: Math.round((1 - damage) * 100), level: LEVELS[levelFromRisk(damage)].label })}</span>`, x, y
     );
   }
 
@@ -96,17 +97,17 @@ export class SystemView {
   #leftShell() {
     const events = this.kind === 'ship'
       ? `<div class="panel-block">
-           <h2>Simular eventos</h2>
+           <h2>${t('Simular eventos')}</h2>
            <div class="button-row">
-             <button class="btn" data-event="solar-storm">Tormenta solar</button>
-             <button class="btn" data-event="micrometeorite">Micrometeorito</button>
+             <button class="btn" data-event="solar-storm">${t('Tormenta solar')}</button>
+             <button class="btn" data-event="micrometeorite">${t('Micrometeorito')}</button>
            </div>
          </div>`
       : '';
     return `
       <div class="panel-block">
-        <h2>${this.title}</h2>
-        <p class="muted">${this.subtitle}</p>
+        <h2>${t(this.title)}</h2>
+        <p class="muted">${t(this.subtitle)}</p>
         <div data-ref="summary"></div>
       </div>
       <ul class="part-list" data-ref="list"></ul>
@@ -119,8 +120,8 @@ export class SystemView {
     const critical = values.filter((d) => levelFromRisk(d) >= 2).length;
     return `
       <div class="summary">
-        <div><span class="summary__value">${integrity}%</span><span class="muted">Integridad global</span></div>
-        <div><span class="summary__value">${critical}</span><span class="muted">En alerta o crítico</span></div>
+        <div><span class="summary__value">${integrity}%</span><span class="muted">${t('Integridad global')}</span></div>
+        <div><span class="summary__value">${critical}</span><span class="muted">${t('En alerta o crítico')}</span></div>
       </div>`;
   }
 
@@ -137,25 +138,25 @@ export class SystemView {
     const d = damage[part.id];
     const level = levelFromRisk(d);
     const faultCount = d < 0.1 ? 0 : Math.ceil(d * part.faults.length);
-    const faults = faultCount ? list(part.faults.slice(0, faultCount)) : '<p class="muted">Sin fallos detectados.</p>';
-    const action = d >= 0.25 ? part.repair : 'Mantenimiento rutinario: no se requieren acciones urgentes.';
+    const faults = faultCount ? list(part.faults.slice(0, faultCount)) : `<p class="muted">${t('Sin fallos detectados.')}</p>`;
+    const action = d >= 0.25 ? part.repair : t('Mantenimiento rutinario: no se requieren acciones urgentes.');
     return `
       <div class="panel-block">
         <div class="detail-head"><h2>${part.name}</h2>${badge(level)}</div>
         <p>${part.desc}</p>
-        <div class="gauge"><span>Daño</span><strong>${Math.round(d * 100)}%</strong></div>
+        <div class="gauge"><span>${t('Daño')}</span><strong>${Math.round(d * 100)}%</strong></div>
         ${riskBar(d)}
       </div>
       <div class="panel-block">
-        <h3>Telemetría</h3>
+        <h3>${t('Telemetría')}</h3>
         <table class="table">
           ${part.metrics.map((m) => `<tr><td>${m.label}</td><td><strong>${metricValue(m, d)}</strong> ${m.unit}</td></tr>`).join('')}
         </table>
       </div>
       <div class="panel-block">
-        <h3>Posibles fallos</h3>${faults}
-        <h3>Acción recomendada</h3><p>${action}</p>
-        <button class="btn btn--primary" data-action="repair" ${d < 0.05 ? 'disabled' : ''}>Iniciar reparación</button>
+        <h3>${t('Posibles fallos')}</h3>${faults}
+        <h3>${t('Acción recomendada')}</h3><p>${action}</p>
+        <button class="btn btn--primary" data-action="repair" ${d < 0.05 ? 'disabled' : ''}>${t('Iniciar reparación')}</button>
       </div>`;
   }
 }

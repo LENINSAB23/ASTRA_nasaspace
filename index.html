@@ -23,9 +23,9 @@
     <aside class="sidebar">
       <div class="brand">
         <span class="brand__name">ASTRA</span>
-        <span class="brand__sub">Monitoreo de salud espacial</span>
+        <span class="brand__sub" data-i18n>Monitoreo de salud espacial</span>
       </div>
-      <nav id="nav" class="nav" aria-label="Secciones"></nav>
+      <nav id="nav" class="nav" aria-label="Secciones" data-i18n-attr="aria-label"></nav>
       <p class="sidebar__foot">NASA Space Apps Challenge 2026</p>
     </aside>
 
@@ -33,20 +33,24 @@
       <header class="topbar">
         <h1 id="view-title"></h1>
         <div class="topbar__controls">
-          <label class="control">Astronauta <select id="crew-select"></select></label>
-          <label class="control">Entorno <select id="env-select"></select></label>
-          <div class="readout"><span>Misión</span><strong id="mission-clock"></strong></div>
-          <div class="readout"><span>Alertas</span><strong id="alert-count" class="counter">0</strong></div>
+          <label class="control"><span data-i18n>Astronauta</span> <select id="crew-select"></select></label>
+          <label class="control"><span data-i18n>Entorno</span> <select id="env-select"></select></label>
+          <div class="readout"><span data-i18n>Misión</span><strong id="mission-clock"></strong></div>
+          <div class="readout"><span data-i18n>Alertas</span><strong id="alert-count" class="counter">0</strong></div>
+          <div class="lang" role="group" aria-label="Idioma / Language">
+            <button type="button" data-lang="es" aria-pressed="true" title="Español">ES</button>
+            <button type="button" data-lang="en" aria-pressed="false" title="English">EN</button>
+          </div>
         </div>
       </header>
 
       <main id="view-3d" class="layout" hidden>
-        <aside id="panel-left" class="panel" aria-label="Resumen"></aside>
-        <section id="stage" class="stage" aria-label="Vista 3D">
-          <p class="stage__hint">Arrastra para girar · rueda para acercar · clic para seleccionar</p>
+        <aside id="panel-left" class="panel" aria-label="Resumen" data-i18n-attr="aria-label"></aside>
+        <section id="stage" class="stage" aria-label="Vista 3D" data-i18n-attr="aria-label">
+          <p class="stage__hint" data-i18n>Arrastra para girar · rueda para acercar · clic para seleccionar</p>
           <ul id="alert-log" class="log" aria-live="polite"></ul>
         </section>
-        <aside id="panel-right" class="panel" aria-label="Detalle"></aside>
+        <aside id="panel-right" class="panel" aria-label="Detalle" data-i18n-attr="aria-label"></aside>
       </main>
 
       <main id="view-page" class="page" hidden></main>
@@ -54,7 +58,7 @@
   </div>
 
   <div id="toasts" class="toasts" aria-live="polite"></div>
-  <noscript>ASTRA necesita JavaScript para funcionar.</noscript>
+  <noscript>ASTRA necesita JavaScript para funcionar. / ASTRA needs JavaScript to run.</noscript>
   <script type="module" src="js/main.js"></script>
 </body>
 </html>

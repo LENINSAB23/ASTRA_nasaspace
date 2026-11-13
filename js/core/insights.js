@@ -4,6 +4,7 @@ import { SHIP_PARTS } from '../data/ship.js';
 import { SUIT_PARTS } from '../data/suit.js';
 import { levelOf, formatValue } from './health.js';
 import { levelFromRisk } from './status.js';
+import { t } from '../i18n/i18n.js';
 
 export const CAREER_DOSE_LIMIT_MSV = 600;
 export const SOLAR_EVENT_LIMIT_MSV = 250;
@@ -34,12 +35,12 @@ export function priorities(limit = 6) {
   SHIP_PARTS.forEach((p) => {
     const damage = store.shipDamage[p.id];
     const level = levelFromRisk(damage);
-    if (level >= 2) items.push({ level, section: 'ship', title: `Nave · ${p.name}: ${Math.round((1 - damage) * 100)} % de integridad`, action: p.repair });
+    if (level >= 2) items.push({ level, section: 'ship', title: t('Nave · {part}: {pct} % de integridad', { part: p.name, pct: Math.round((1 - damage) * 100) }), action: p.repair });
   });
 
   store.crew.forEach((c) => SUIT_PARTS.forEach((p) => {
     const level = levelFromRisk(c.suitDamage[p.id]);
-    if (level >= 2) items.push({ level, section: 'suit', crewId: c.id, title: `Traje de ${firstName(c.name)} · ${p.name}`, action: p.repair });
+    if (level >= 2) items.push({ level, section: 'suit', crewId: c.id, title: t('Traje de {name} · {part}', { name: firstName(c.name), part: p.name }), action: p.repair });
   }));
 
   return items.sort((a, b) => b.level - a.level).slice(0, limit);

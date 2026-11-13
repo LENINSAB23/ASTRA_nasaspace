@@ -1,10 +1,11 @@
 import { metric as m } from './metric.js';
+import { localized } from '../i18n/i18n.js';
 
 /**
  * Subsistemas de la nave. `initial` es el daño inicial (0 a 1).
  * Cada métrica se calcula como: nominal + delta × daño.
  */
-export const SHIP_PARTS = [
+export const SHIP_PARTS = localized([
   {
     id: 'habitat', name: 'Módulo habitable', initial: 0.12,
     desc: 'Cabina presurizada donde la tripulación vive y trabaja.',
@@ -75,4 +76,4 @@ export const SHIP_PARTS = [
     faults: ['Saturación del filtro de CO₂', 'Fallo del generador de oxígeno', 'Contaminación del agua reciclada'],
     repair: 'Cambiar los lechos de absorción de CO₂ y activar el generador de oxígeno de respaldo.'
   }
-];
+]);

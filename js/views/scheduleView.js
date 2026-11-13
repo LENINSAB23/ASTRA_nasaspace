@@ -3,6 +3,7 @@ import { SCHEDULE } from '../data/schedule.js';
 import { TASKS } from '../data/crew.js';
 import { colorBar, section, firstName } from '../ui/components.js';
 import { pad2 } from '../core/utils.js';
+import { t } from '../i18n/i18n.js';
 
 const MAX_POINTS = TASKS.reduce((sum, t) => sum + t.points, 0);
 
@@ -20,7 +21,7 @@ export class ScheduleView {
   mount({ page }) {
     this.page = page;
     page.innerHTML = `
-      <p class="page__intro">La agenda recuerda al astronauta las acciones de salud a lo largo de la misión. En esta demostración el tiempo va acelerado.</p>
+      <p class="page__intro">${t('La agenda recuerda al astronauta las acciones de salud a lo largo de la misión. En esta demostración el tiempo va acelerado.')}</p>
       <div class="grid grid--2">
         <div class="stack">
           <div data-ref="pending"></div>
@@ -52,18 +53,18 @@ export class ScheduleView {
     const astronaut = store.selectedCrew;
     $('pending').innerHTML = section('Pendientes ahora', this.#pending());
     $('upcoming').innerHTML = section('Próximos recordatorios', this.#upcoming());
-    $('routine').innerHTML = section(`Rutina diaria de ${firstName(astronaut.name)}`, this.#routine(astronaut));
+    $('routine').innerHTML = section(t('Rutina diaria de {name}', { name: firstName(astronaut.name) }), this.#routine(astronaut));
     $('ranking').innerHTML = section('Clasificación de la tripulación', this.#ranking());
   }
 
   #pending() {
-    if (!store.prompts.length) return '<p class="empty">No hay recordatorios pendientes.</p>';
+    if (!store.prompts.length) return `<p class="empty">${t('No hay recordatorios pendientes.')}</p>`;
     return `<ul class="task-list">${store.prompts.map((p) => `
       <li class="task-list__item task-list__item--action">
         <div><strong>${p.label}</strong><span class="cell-sub">${p.detail}</span></div>
         <div class="button-row">
-          <button class="btn btn--primary btn--small" data-done="${p.id}">Hecho</button>
-          <button class="btn btn--small" data-snooze="${p.id}">Más tarde</button>
+          <button class="btn btn--primary btn--small" data-done="${p.id}">${t('Hecho')}</button>
+          <button class="btn btn--small" data-snooze="${p.id}">${t('Más tarde')}</button>
         </div>
       </li>`).join('')}</ul>`;
   }
@@ -76,7 +77,7 @@ export class ScheduleView {
 
   #routine(astronaut) {
     return `
-      <div class="meter-list__head"><span>${store.rankOf(astronaut)}</span><span>${astronaut.points} de ${MAX_POINTS} puntos</span></div>
+      <div class="meter-list__head"><span>${store.rankOf(astronaut)}</span><span>${t('{pts} de {max} puntos', { pts: astronaut.points, max: MAX_POINTS })}</span></div>
       ${colorBar(astronaut.points / MAX_POINTS)}
       <ul class="tasks">${TASKS.map((t) => `
         <li><button class="task ${astronaut.tasks.has(t.id) ? 'is-done' : ''}" data-task="${t.id}">

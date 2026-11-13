@@ -1,9 +1,11 @@
+import { localized } from '../i18n/i18n.js';
+
 /**
  * Indicadores de salud monitoreados.
  * Rangos: [mín, máx] inclusivos. Un valor fuera de `alert` se considera crítico.
  * Valores de referencia generales para adultos; el prototipo no sustituye criterio médico.
  */
-export const INDICATORS = [
+export const INDICATORS = localized([
   {
     id: 'heartRate', name: 'Frecuencia cardíaca', short: 'FC', unit: 'lpm', decimals: 0,
     normal: [50, 90], watch: [40, 110], alert: [35, 130], limits: [25, 200],
@@ -94,6 +96,6 @@ export const INDICATORS = [
     actions: ['Combinar ejercicio resistivo y aeróbico.', 'Reservar horario fijo en la agenda.', 'Usar el anillo de gravedad si está disponible.'],
     escalate: 'Menos de 45 minutos al día durante una semana, o dolor óseo persistente.'
   }
-];
+]);
 
 export const INDICATOR_MAP = Object.fromEntries(INDICATORS.map((i) => [i.id, i]));

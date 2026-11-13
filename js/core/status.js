@@ -1,13 +1,14 @@
 import * as THREE from 'three';
 import { clamp } from './utils.js';
+import { localized } from '../i18n/i18n.js';
 
 /** Niveles de estado compartidos por nave, traje y cuerpo. */
-export const LEVELS = [
+export const LEVELS = localized([
   { id: 'ok', label: 'Normal' },
   { id: 'watch', label: 'Precaución' },
   { id: 'alert', label: 'Alerta' },
   { id: 'critical', label: 'Crítico' }
-];
+]);
 
 /** Convierte un riesgo (0 a 1) en un nivel (0 a 3). */
 export const levelFromRisk = (risk) => (risk < 0.25 ? 0 : risk < 0.5 ? 1 : risk < 0.75 ? 2 : 3);

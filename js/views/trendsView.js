@@ -4,6 +4,7 @@ import { levelOf, formatValue } from '../core/health.js';
 import { badge, firstName } from '../ui/components.js';
 import { drawSparkline } from '../ui/chart.js';
 import { buildCsv, buildReport, download } from '../ui/report.js';
+import { t } from '../i18n/i18n.js';
 
 /** Evolución de todos los indicadores del astronauta seleccionado, con exportación de datos e informe. */
 export class TrendsView {
@@ -15,10 +16,10 @@ export class TrendsView {
     this.page = page;
     page.innerHTML = `
       <div class="toolbar">
-        <p class="page__intro">Evolución de los indicadores en las últimas lecturas. La franja verde marca el rango normal y la amarilla, el de precaución.</p>
+        <p class="page__intro">${t('Evolución de los indicadores en las últimas lecturas. La franja verde marca el rango normal y la amarilla, el de precaución.')}</p>
         <div class="button-row">
-          <button class="btn" data-action="csv">Descargar CSV</button>
-          <button class="btn btn--primary" data-action="report">Informe para tierra</button>
+          <button class="btn" data-action="csv">${t('Descargar CSV')}</button>
+          <button class="btn btn--primary" data-action="report">${t('Informe para tierra')}</button>
         </div>
       </div>
       <div class="grid grid--trends" data-ref="body"></div>`;
@@ -26,8 +27,8 @@ export class TrendsView {
       const action = e.target.closest('[data-action]')?.dataset.action;
       const astronaut = store.selectedCrew;
       const slug = firstName(astronaut.name).toLowerCase();
-      if (action === 'csv') download(`astra-${slug}-indicadores.csv`, buildCsv(astronaut), 'text/csv');
-      if (action === 'report') download(`astra-${slug}-informe.txt`, buildReport(astronaut));
+      if (action === 'csv') download(`astra-${slug}-${t('indicadores')}.csv`, buildCsv(astronaut), 'text/csv');
+      if (action === 'report') download(`astra-${slug}-${t('informe')}.txt`, buildReport(astronaut));
     };
     this.update();
   }
@@ -49,8 +50,8 @@ export class TrendsView {
         <article class="card trend">
           <header class="trend__head"><h3>${ind.name}</h3>${badge(levelOf(ind, current))}</header>
           <p class="trend__value">${formatValue(ind, current)} <small>${ind.unit}</small></p>
-          <canvas class="spark" data-ind="${ind.id}" aria-label="Evolución de ${ind.name}"></canvas>
-          <p class="trend__range">Mín ${formatValue(ind, min)} · Prom ${formatValue(ind, avg)} · Máx ${formatValue(ind, max)}</p>
+          <canvas class="spark" data-ind="${ind.id}" aria-label="${t('Evolución de {name}', { name: ind.name })}"></canvas>
+          <p class="trend__range">${t('Mín {min} · Prom {avg} · Máx {max}', { min: formatValue(ind, min), avg: formatValue(ind, avg), max: formatValue(ind, max) })}</p>
         </article>`;
     }).join('');
 

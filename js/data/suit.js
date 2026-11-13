@@ -1,7 +1,8 @@
 import { metric as m } from './metric.js';
+import { localized } from '../i18n/i18n.js';
 
 /** Componentes del traje espacial. El daño inicial se combina con el desgaste de cada astronauta. */
-export const SUIT_PARTS = [
+export const SUIT_PARTS = localized([
   {
     id: 'helmet', name: 'Casco', initial: 0.05,
     desc: 'Mantiene la presión y la atmósfera respirable alrededor de la cabeza.',
@@ -58,4 +59,4 @@ export const SUIT_PARTS = [
     faults: ['Desgaste de suela', 'Pérdida de aislamiento', 'Polvo atrapado en juntas'],
     repair: 'Limpiar el polvo con aspiradora electrostática y sustituir la suela si el desgaste es alto.'
   }
-];
+]);

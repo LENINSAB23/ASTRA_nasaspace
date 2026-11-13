@@ -7,6 +7,7 @@ import { INDICATOR_MAP } from '../config/indicators.js';
 import { CAREER_DOSE_LIMIT_MSV, priorities, shipIntegrity } from '../core/insights.js';
 import { badge, riskBar, colorBar, stat, section, handleGoto } from '../ui/components.js';
 import { pad2, escapeHtml } from '../core/utils.js';
+import { t } from '../i18n/i18n.js';
 
 const countdown = (ticks) => {
   const s = Math.max(0, ticks) * TICK_SECONDS;
@@ -22,7 +23,7 @@ export class OverviewView {
   mount({ page }) {
     this.page = page;
     page.innerHTML = `
-      <p class="page__intro">Estado general de la misión. Selecciona un astronauta o un sistema para ver el detalle.</p>
+      <p class="page__intro">${t('Estado general de la misión. Selecciona un astronauta o un sistema para ver el detalle.')}</p>
       <div class="grid grid--4" data-ref="stats"></div>
       <div class="grid grid--wide">
         <div data-ref="crew"></div>
@@ -47,9 +48,9 @@ export class OverviewView {
     $('stats').innerHTML = this.#stats();
     $('crew').innerHTML = section('Tripulación', this.#crewTable());
     $('priorities').innerHTML = section('Acciones prioritarias', this.#priorities());
-    $('ship').innerHTML = section('Subsistemas de la nave', this.#ship(), '<a class="link" href="#ship">Ver nave</a>');
+    $('ship').innerHTML = section('Subsistemas de la nave', this.#ship(), `<a class="link" href="#ship">${t('Ver nave')}</a>`);
     $('alerts').innerHTML = section('Alertas recientes', this.#alerts());
-    $('next').innerHTML = section('Próximos recordatorios', this.#next(), '<a class="link" href="#schedule">Ver agenda</a>');
+    $('next').innerHTML = section('Próximos recordatorios', this.#next(), `<a class="link" href="#schedule">${t('Ver agenda')}</a>`);
   }
 
   #stats() {
@@ -61,8 +62,8 @@ export class OverviewView {
     const ringLevel = levelFromRisk(1 - integrity / 100);
     return [
       stat('Integridad de la nave', `${integrity} %`, LEVELS[ringLevel].label),
-      stat('Tripulación estable', `${stable} de ${crew.length}`, stable === crew.length ? 'Sin indicadores en alerta' : 'Hay indicadores por revisar'),
-      stat('Radiación media', `${avgDose.toFixed(2)} mSv/día`, store.stormTicks > 0 ? 'Tormenta solar activa' : store.environment.name),
+      stat('Tripulación estable', t('{n} de {total}', { n: stable, total: crew.length }), stable === crew.length ? 'Sin indicadores en alerta' : 'Hay indicadores por revisar'),
+      stat('Radiación media', `${avgDose.toFixed(2)} ${t('mSv/día')}`, store.stormTicks > 0 ? 'Tormenta solar activa' : store.environment.name),
       stat('Alertas activas', String(active), 'Nivel alerta o crítico')
     ].join('');
   }
@@ -82,14 +83,14 @@ export class OverviewView {
     }).join('');
     return `
       <div class="table-wrap"><table class="data-table">
-        <thead><tr><th>Astronauta</th><th>Estado</th><th>FC</th><th>PAS</th><th>Glucosa</th><th>SpO₂</th><th>Sueño</th><th>Ánimo</th><th>Dosis de carrera</th></tr></thead>
+        <thead><tr>${['Astronauta', 'Estado', 'FC', 'PAS', 'Glucosa', 'SpO₂', 'Sueño', 'Ánimo', 'Dosis de carrera'].map((h) => `<th>${t(h)}</th>`).join('')}</tr></thead>
         <tbody>${rows}</tbody>
       </table></div>`;
   }
 
   #priorities() {
     const items = priorities();
-    if (!items.length) return '<p class="empty">Sin acciones prioritarias. Todos los sistemas están dentro de los rangos esperados.</p>';
+    if (!items.length) return `<p class="empty">${t('Sin acciones prioritarias. Todos los sistemas están dentro de los rangos esperados.')}</p>`;
     return `<ul class="task-list">${items.map((i) => `
       <li class="task-list__item" data-goto="${i.section}"${i.crewId ? ` data-crew="${i.crewId}"` : ''}>
         <div>${badge(i.level)}</div>
@@ -104,9 +105,9 @@ export class OverviewView {
   }
 
   #alerts() {
-    if (!store.alerts.length) return '<p class="empty">Sin alertas registradas.</p>';
+    if (!store.alerts.length) return `<p class="empty">${t('Sin alertas registradas.')}</p>`;
     return `<ul class="event-list">${store.alerts.slice(0, 6).map((a) => `
-      <li class="event-list__item event-list__item--${LEVELS[a.level].id}"><time>${pad2(a.time.getHours())}:${pad2(a.time.getMinutes())}:${pad2(a.time.getSeconds())}</time>${escapeHtml(a.text)}</li>`).join('')}</ul>`;
+      <li class="event-list__item event-list__item--${LEVELS[a.level].id}"><time>${pad2(a.time.getHours())}:${pad2(a.time.getMinutes())}:${pad2(a.time.getSeconds())}</time>${escapeHtml(a.text())}</li>`).join('')}</ul>`;
   }
 
   #next() {

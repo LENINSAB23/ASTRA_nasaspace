@@ -1,8 +1,9 @@
 import { store } from '../core/store.js';
 import { LEVELS, riskHex } from '../core/status.js';
+import { t } from '../i18n/i18n.js';
 
 /** Etiqueta de estado según el nivel (0 a 3). */
-export const badge = (level, text = LEVELS[level].label) => `<span class="badge badge--${LEVELS[level].id}">${text}</span>`;
+export const badge = (level, text = LEVELS[level].label) => `<span class="badge badge--${LEVELS[level].id}">${t(text)}</span>`;
 
 /** Barra de progreso coloreada según el riesgo (0 a 1). */
 export const riskBar = (risk) =>
@@ -12,14 +13,14 @@ export const riskBar = (risk) =>
 export const colorBar = (fraction, color = 'var(--accent)') =>
   `<div class="bar"><i style="width:${Math.round(Math.min(Math.max(fraction, 0), 1) * 100)}%;background:${color}"></i></div>`;
 
-export const list = (items) => `<ul class="bullets">${items.map((i) => `<li>${i}</li>`).join('')}</ul>`;
+export const list = (items) => `<ul class="bullets">${items.map((i) => `<li>${t(i)}</li>`).join('')}</ul>`;
 
 /** Tarjeta de indicador numérico para los paneles de resumen. */
 export const stat = (label, value, sub = '') =>
-  `<div class="stat"><span class="stat__label">${label}</span><strong class="stat__value">${value}</strong><span class="stat__sub">${sub}</span></div>`;
+  `<div class="stat"><span class="stat__label">${t(label)}</span><strong class="stat__value">${value}</strong><span class="stat__sub">${t(sub)}</span></div>`;
 
 export const section = (title, body, extra = '') =>
-  `<section class="card"><header class="card__head"><h2>${title}</h2>${extra}</header>${body}</section>`;
+  `<section class="card"><header class="card__head"><h2>${t(title)}</h2>${extra}</header>${body}</section>`;
 
 /**
  * Atiende los elementos con `data-goto="vista"` (y opcionalmente `data-crew` y `data-part`):

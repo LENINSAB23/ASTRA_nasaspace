@@ -1,5 +1,7 @@
+import { localized } from '../i18n/i18n.js';
+
 /** Los 5 peligros de los vuelos espaciales tripulados (NASA Human Research Program). */
-export const HAZARDS = [
+export const HAZARDS = localized([
   {
     id: 'radiation', name: 'Radiación espacial',
     summary: 'Partículas de alta energía que dañan células y ADN.',
@@ -30,7 +32,7 @@ export const HAZARDS = [
     effects: ['Infecciones y alergias', 'Problemas respiratorios', 'Fatiga por ruido o temperatura'],
     countermeasures: ['Monitoreo de aire, agua y temperatura', 'Limpieza y filtros HEPA', 'Control del ruido y de la iluminación']
   }
-];
+]);
 
 export const HAZARD_MAP = Object.fromEntries(HAZARDS.map((h) => [h.id, h]));
 

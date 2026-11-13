@@ -8,6 +8,7 @@ import { levelOf, partRisk, crewLevel, formatValue, rangeText } from '../core/he
 import { badge, list } from '../ui/components.js';
 import { drawSparkline } from '../ui/chart.js';
 import { buildBodyModel } from '../three/bodyModel.js';
+import { t } from '../i18n/i18n.js';
 
 const MAX_POINTS = TASKS.reduce((sum, t) => sum + t.points, 0);
 
@@ -53,7 +54,7 @@ export class CrewView {
     this.model.setSelected(this.selection.type === 'part' ? this.selection.id : null);
 
     this.#ref(this.left, 'crew').innerHTML = this.#crewCards();
-    this.#ref(this.left, 'envNote').textContent = `${store.environment.name} · gravedad ${store.environment.gravity}. ${store.environment.note}`;
+    this.#ref(this.left, 'envNote').textContent = `${t('{env} · gravedad {gravity}.', { env: store.environment.name, gravity: store.environment.gravity })} ${store.environment.note}`;
     this.#ref(this.left, 'vitals').innerHTML = this.#vitalCards(crew);
     this.#ref(this.right, 'detail').innerHTML = this.#detail(crew);
     this.#ref(this.right, 'routine').innerHTML = this.#routine(crew);
@@ -115,20 +116,20 @@ export class CrewView {
       if (raw === '') continue;
       const value = Number(raw.replace(',', '.'));
       if (!Number.isFinite(value) || value < ind.limits[0] || value > ind.limits[1]) {
-        status.textContent = `${ind.name}: ingresa un valor entre ${ind.limits[0]} y ${ind.limits[1]} ${ind.unit}.`;
+        status.textContent = t('{name}: ingresa un valor entre {min} y {max} {unit}.', { name: ind.name, min: ind.limits[0], max: ind.limits[1], unit: ind.unit });
         status.className = 'form-status form-status--error';
         return;
       }
       values[ind.id] = value;
     }
     if (!Object.keys(values).length) {
-      status.textContent = 'Ingresa al menos una medición.';
+      status.textContent = t('Ingresa al menos una medición.');
       status.className = 'form-status form-status--error';
       return;
     }
     store.record(store.selectedCrewId, values);
     form.reset();
-    status.textContent = 'Medición registrada.';
+    status.textContent = t('Medición registrada.');
     status.className = 'form-status';
   }
 
@@ -141,14 +142,14 @@ export class CrewView {
   #leftShell() {
     return `
       <div class="panel-block">
-        <h2>Tripulación</h2>
+        <h2>${t('Tripulación')}</h2>
         <div class="crew-list" data-ref="crew"></div>
         <p class="muted" data-ref="envNote"></p>
       </div>
       <div class="panel-block">
-        <h2>Indicadores vitales</h2>
+        <h2>${t('Indicadores vitales')}</h2>
         <div class="vitals" data-ref="vitals"></div>
-        <p class="muted">Datos simulados. Toca un indicador para ver cómo medirlo y qué significa.</p>
+        <p class="muted">${t('Datos simulados. Toca un indicador para ver cómo medirlo y qué significa.')}</p>
       </div>`;
   }
 
@@ -182,18 +183,18 @@ export class CrewView {
     return `
       <div class="panel-block" data-ref="detail"></div>
       <div class="panel-block">
-        <h2>Rutina de salud</h2>
+        <h2>${t('Rutina de salud')}</h2>
         <div data-ref="routine"></div>
       </div>
       <div class="panel-block">
-        <h2>Registrar medición</h2>
+        <h2>${t('Registrar medición')}</h2>
         <form data-ref="form"></form>
         <p class="form-status" data-ref="formStatus"></p>
       </div>
       <div class="panel-block">
-        <h2>Peligros de la misión</h2>
+        <h2>${t('Peligros de la misión')}</h2>
         <ul class="bullets">${HAZARDS.map((h) => `<li><strong>${h.name}.</strong> ${h.summary}</li>`).join('')}</ul>
-        <a class="link" href="${HAZARD_SOURCE_URL}" target="_blank" rel="noopener">NASA · 5 peligros de los vuelos espaciales</a>
+        <a class="link" href="${HAZARD_SOURCE_URL}" target="_blank" rel="noopener">${t('NASA · 5 peligros de los vuelos espaciales')}</a>
       </div>`;
   }
 
@@ -206,7 +207,7 @@ export class CrewView {
             <input name="${ind.id}" type="text" inputmode="decimal" autocomplete="off" placeholder="${formatValue(ind, crew.vitals[ind.id])}">
           </label>`).join('')}
       </div>
-      <button class="btn btn--primary" type="submit">Registrar</button>`;
+      <button class="btn btn--primary" type="submit">${t('Registrar')}</button>`;
   }
 
   #detail(crew) {
@@ -224,12 +225,12 @@ export class CrewView {
       <div class="detail-head"><h2>${part.name}</h2>${badge(level)}</div>
       <p class="muted">${part.system}</p>
       <p>${part.role}</p>
-      <h3>Indicadores relacionados</h3><div class="chips">${related}</div>
-      <h3>Peligros asociados</h3>
+      <h3>${t('Indicadores relacionados')}</h3><div class="chips">${related}</div>
+      <h3>${t('Peligros asociados')}</h3>
       <div class="chips">${part.hazards.map((id) => `<span class="chip">${HAZARD_MAP[id].name}</span>`).join('')}</div>
-      <h3>Posibles condiciones</h3>${list(part.conditions)}
-      <h3>Cómo prevenir</h3>${list(part.prevention)}
-      <h3>Cuándo contactar al cirujano de vuelo</h3><p class="callout">${part.escalate}</p>`;
+      <h3>${t('Posibles condiciones')}</h3>${list(part.conditions)}
+      <h3>${t('Cómo prevenir')}</h3>${list(part.prevention)}
+      <h3>${t('Cuándo contactar al cirujano de vuelo')}</h3><p class="callout">${part.escalate}</p>`;
   }
 
   #indicatorDetail(crew) {
@@ -239,23 +240,23 @@ export class CrewView {
     return `
       <div class="detail-head"><h2>${ind.name}</h2>${badge(level)}</div>
       <p class="big-value">${formatValue(ind, value)} <small>${ind.unit}</small></p>
-      <canvas class="spark" aria-label="Evolución de ${ind.name}"></canvas>
+      <canvas class="spark" aria-label="${t('Evolución de {name}', { name: ind.name })}"></canvas>
       <table class="table">
-        <tr><td><span class="dot dot--ok"></span>Normal</td><td>${rangeText(ind, ind.normal)}</td></tr>
-        <tr><td><span class="dot dot--watch"></span>Precaución</td><td>${rangeText(ind, ind.watch)}</td></tr>
-        <tr><td><span class="dot dot--alert"></span>Alerta</td><td>${rangeText(ind, ind.alert)}</td></tr>
+        <tr><td><span class="dot dot--ok"></span>${t('Normal')}</td><td>${rangeText(ind, ind.normal)}</td></tr>
+        <tr><td><span class="dot dot--watch"></span>${t('Precaución')}</td><td>${rangeText(ind, ind.watch)}</td></tr>
+        <tr><td><span class="dot dot--alert"></span>${t('Alerta')}</td><td>${rangeText(ind, ind.alert)}</td></tr>
       </table>
-      <h3>Cómo medirlo</h3><p>${ind.measure}</p>
-      <h3>Por qué importa</h3><p>${ind.why}</p>
-      <h3>Peligros que lo afectan</h3><p>${ind.hazards}</p>
-      <h3>Qué hacer</h3>${list(ind.actions)}
-      <h3>Cuándo contactar al cirujano de vuelo</h3><p class="callout">${ind.escalate}</p>`;
+      <h3>${t('Cómo medirlo')}</h3><p>${ind.measure}</p>
+      <h3>${t('Por qué importa')}</h3><p>${ind.why}</p>
+      <h3>${t('Peligros que lo afectan')}</h3><p>${ind.hazards}</p>
+      <h3>${t('Qué hacer')}</h3>${list(ind.actions)}
+      <h3>${t('Cuándo contactar al cirujano de vuelo')}</h3><p class="callout">${ind.escalate}</p>`;
   }
 
   #routine(crew) {
     const rank = store.rankOf(crew);
     return `
-      <div class="gauge"><span>${rank}</span><strong>${crew.points} / ${MAX_POINTS} pts</strong></div>
+      <div class="gauge"><span>${rank}</span><strong>${crew.points} / ${MAX_POINTS} ${t('pts')}</strong></div>
       <div class="bar"><i style="width:${(crew.points / MAX_POINTS) * 100}%;background:var(--accent)"></i></div>
       <ul class="tasks">
         ${TASKS.map((t) => `

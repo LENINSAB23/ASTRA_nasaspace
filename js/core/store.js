@@ -7,6 +7,7 @@ import { SCHEDULE } from '../data/schedule.js';
 import { clamp, noise, pad2 } from './utils.js';
 import { LEVELS, levelFromRisk } from './status.js';
 import { levelOf } from './health.js';
+import { t } from '../i18n/i18n.js';
 
 const TICK_MS = 3000;
 export const TICK_SECONDS = TICK_MS / 1000;
@@ -49,7 +50,8 @@ class Store {
   #createAstronaut(def) {
     const vitals = { ...def.baseline, radiation: this.environment.radiation * def.radiationFactor };
     return {
-      id: def.id, name: def.name, role: def.role,
+      id: def.id, name: def.name,
+      get role() { return def.role; },
       radiationFactor: def.radiationFactor,
       baseline: { ...def.baseline },
       vitals,
@@ -90,7 +92,7 @@ class Store {
   missionClock() {
     const s = Math.floor((Date.now() - this.startedAt) / 1000);
     const day = MISSION_START_DAY + Math.floor(s / 86400);
-    return `DÍA ${day} · ${pad2(Math.floor((s % 86400) / 3600))}:${pad2(Math.floor((s % 3600) / 60))}:${pad2(s % 60)}`;
+    return `${t('DÍA')} ${day} · ${pad2(Math.floor((s % 86400) / 3600))}:${pad2(Math.floor((s % 3600) / 60))}:${pad2(s % 60)}`;
   }
 
   rankOf(astronaut) {
@@ -111,7 +113,7 @@ class Store {
 
   repair(kind, partId) {
     this.damageMap(kind)[partId] = 0.03;
-    this.#pushAlert(0, `${kind === 'ship' ? 'Nave' : 'Traje'} · reparación completada`);
+    this.#pushAlert(0, () => t(kind === 'ship' ? 'Nave · reparación completada' : 'Traje · reparación completada'));
     this.#checkLevels(true);
     this.#emit();
   }
@@ -120,11 +122,11 @@ class Store {
     if (type === 'solar-storm') {
       this.stormTicks = 12;
       this.#raise(this.shipDamage, ['shield', 'solar', 'comms'], 0.15, 0.25);
-      this.#pushAlert(3, 'Tormenta solar detectada: refugiarse en el blindaje');
+      this.#pushAlert(3, () => t('Tormenta solar detectada: refugiarse en el blindaje'));
     } else if (type === 'micrometeorite') {
       const ids = SHIP_PARTS.map((p) => p.id).sort(() => Math.random() - 0.5).slice(0, 2);
       this.#raise(this.shipDamage, ids, 0.2, 0.35);
-      this.#pushAlert(3, 'Impacto de micrometeorito en la estructura');
+      this.#pushAlert(3, () => t('Impacto de micrometeorito en la estructura'));
     }
     this.#checkLevels();
     this.#emit();
@@ -219,7 +221,7 @@ class Store {
       if (this.scheduleState[item.id] > 0) return;
       this.scheduleState[item.id] = item.every;
       if (this.prompts.some((p) => p.id === item.id)) return;
-      this.prompts.push({ id: item.id, label: item.label, detail: item.detail, task: item.task, time: new Date() });
+      this.prompts.push({ id: item.id, task: item.task, time: new Date(), get label() { return item.label; }, get detail() { return item.detail; } });
       if (this.prompts.length > MAX_PROMPTS) this.prompts.shift();
     });
   }
@@ -260,6 +262,7 @@ class Store {
 
   /* ---------- Alertas ---------- */
 
+  /** `text` es una función para que la alerta se muestre en el idioma activo al leerla. */
   #pushAlert(level, text) {
     this.alerts.unshift({ time: new Date(), level, text });
     if (this.alerts.length > MAX_ALERTS) this.alerts.pop();
@@ -270,12 +273,12 @@ class Store {
     const check = (key, level, text) => {
       const previous = this.levels.get(key) ?? 0;
       this.levels.set(key, level);
-      if (!silent && level >= 2 && level > previous) this.#pushAlert(level, `${text}: ${LEVELS[level].label}`);
+      if (!silent && level >= 2 && level > previous) this.#pushAlert(level, () => `${text()}: ${LEVELS[level].label}`);
     };
-    SHIP_PARTS.forEach((p) => check(`ship:${p.id}`, levelFromRisk(this.shipDamage[p.id]), `Nave · ${p.name}`));
+    SHIP_PARTS.forEach((p) => check(`ship:${p.id}`, levelFromRisk(this.shipDamage[p.id]), () => t('Nave · {part}', { part: p.name })));
     this.crew.forEach((c) => {
-      SUIT_PARTS.forEach((p) => check(`suit:${c.id}:${p.id}`, levelFromRisk(c.suitDamage[p.id]), `Traje de ${c.name.split(' ')[0]} · ${p.name}`));
-      INDICATORS.forEach((i) => check(`vital:${c.id}:${i.id}`, levelOf(i, c.vitals[i.id]), `${c.name.split(' ')[0]} · ${i.name}`));
+      SUIT_PARTS.forEach((p) => check(`suit:${c.id}:${p.id}`, levelFromRisk(c.suitDamage[p.id]), () => t('Traje de {name} · {part}', { name: c.name.split(' ')[0], part: p.name })));
+      INDICATORS.forEach((i) => check(`vital:${c.id}:${i.id}`, levelOf(i, c.vitals[i.id]), () => `${c.name.split(' ')[0]} · ${i.name}`));
     });
   }
 }

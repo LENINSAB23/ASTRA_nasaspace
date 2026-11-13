@@ -1,16 +1,18 @@
+import { localized } from '../i18n/i18n.js';
+
 /**
  * Síntomas para la autoevaluación guiada.
  * severity: 1 = autocuidado y vigilancia, 2 = contactar a tierra hoy, 3 = contactar de inmediato.
  * Orientación general: no sustituye el protocolo médico de a bordo ni al cirujano de vuelo.
  */
-export const SEVERITY_LABELS = {
+export const SEVERITY_LABELS = localized({
   0: 'Sin síntomas seleccionados',
   1: 'Autocuidado y vigilancia',
   2: 'Contactar a tierra hoy',
   3: 'Contactar de inmediato'
-};
+});
 
-export const SYMPTOMS = [
+export const SYMPTOMS = localized([
   {
     id: 'chestPain', label: 'Dolor u opresión en el pecho', group: 'Corazón y respiración', severity: 3, part: 'heart',
     causes: ['Problema cardíaco o arritmia', 'Esfuerzo excesivo', 'Falla en el soporte vital'],
@@ -101,4 +103,4 @@ export const SYMPTOMS = [
     causes: ['Crisis de salud mental que requiere apoyo inmediato'],
     actions: ['No te quedes a solas: avisa ahora mismo a un compañero.', 'Contacta de inmediato al cirujano de vuelo y al apoyo psicológico.', 'Pedir ayuda es parte del protocolo y se atiende como prioridad.']
   }
-];
+]);

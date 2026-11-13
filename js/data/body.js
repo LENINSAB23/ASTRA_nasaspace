@@ -1,5 +1,7 @@
+import { localized } from '../i18n/i18n.js';
+
 /** Regiones del cuerpo: función, peligros asociados, indicadores que las evalúan y posibles condiciones. */
-export const BODY_PARTS = [
+export const BODY_PARTS = localized([
   {
     id: 'brain', name: 'Cerebro y conducta', system: 'Sistema nervioso',
     role: 'Regula el sueño, el ánimo, la cognición y la toma de decisiones, claves para el desempeño de la tripulación.',
@@ -13,7 +15,7 @@ export const BODY_PARTS = [
     role: 'El desplazamiento de fluidos hacia la cabeza puede aplanar el globo ocular y alterar la visión (síndrome neuro-ocular asociado a vuelos espaciales). La presión arterial se usa aquí como indicador indirecto.',
     hazards: ['gravity', 'radiation', 'environment'], indicators: ['systolic', 'diastolic'],
     conditions: ['Edema del disco óptico', 'Aplanamiento del globo ocular', 'Visión borrosa o hipermetropía', 'Cataratas por radiación (largo plazo)'],
-    prevention: ['Prueba de agudeza visual semanal', 'Controlar la presión arterial', 'Mantener bajo el CO₂ de la cabina'],
+    prevention: ['Prueba de agudeza visual semanal', 'Controlar la presión arterial', 'Mantener bajo el CO₂ de la cabina', 'Contramedidas en estudio: presión negativa en la parte inferior del cuerpo y suplementos nutricionales'],
     escalate: 'Cualquier cambio brusco de visión, manchas o dolor ocular: avisar a tierra el mismo día.'
   },
   {
@@ -42,7 +44,7 @@ export const BODY_PARTS = [
   },
   {
     id: 'bones', name: 'Huesos y columna', system: 'Sistema óseo',
-    role: 'Sin carga gravitatoria el hueso se debilita: se puede perder hasta 1–1,5 % de densidad por mes en la cadera.',
+    role: 'Sin carga gravitatoria el hueso se debilita: se puede perder cerca de 1 % de densidad ósea por mes si no se compensa con ejercicio.',
     hazards: ['gravity', 'radiation'], indicators: ['exercise'],
     conditions: ['Pérdida de densidad ósea', 'Dolor lumbar por elongación de la columna', 'Fracturas por fragilidad al regresar a la gravedad', 'Exceso de calcio en sangre'],
     prevention: ['Ejercicio resistivo de unas 2 h al día', 'Calcio y vitamina D supervisados', 'Aprovechar la gravedad artificial si existe'],
@@ -64,6 +66,6 @@ export const BODY_PARTS = [
     prevention: ['Dormir entre 7 y 9 h', 'Limpiar superficies e higiene personal', 'Ejercicio moderado', 'Vigilar la dosis de radiación'],
     escalate: 'Temperatura de 38 °C o más por más de 24 h, erupciones o infecciones que no mejoran.'
   }
-];
+]);
 
 export const BODY_PART_MAP = Object.fromEntries(BODY_PARTS.map((p) => [p.id, p]));

@@ -3,6 +3,7 @@ import { BODY_PARTS } from '../data/body.js';
 import { INDICATORS } from '../config/indicators.js';
 import { RESOURCES } from '../data/resources.js';
 import { list, section, handleGoto } from '../ui/components.js';
+import { t } from '../i18n/i18n.js';
 
 /** Guía de referencia: peligros, glosario de indicadores, fuentes y alcance del software. */
 export class GuideView {
@@ -13,8 +14,8 @@ export class GuideView {
   mount({ page }) {
     this.page = page;
     page.innerHTML = `
-      <p class="page__intro">Información de apoyo para entender qué se mide, por qué importa y de dónde sale cada dato.</p>
-      <h2 class="page__title">Los cinco peligros de los vuelos espaciales</h2>
+      <p class="page__intro">${t('Información de apoyo para entender qué se mide, por qué importa y de dónde sale cada dato.')}</p>
+      <h2 class="page__title">${t('Los cinco peligros de los vuelos espaciales')}</h2>
       <div class="grid grid--3">${HAZARDS.map((h) => this.#hazard(h)).join('')}</div>
       ${section('Glosario de indicadores', this.#glossary())}
       <div class="grid grid--2">
@@ -35,16 +36,16 @@ export class GuideView {
     const parts = BODY_PARTS.filter((p) => p.hazards.includes(hazard.id));
     return section(hazard.name, `
       <p>${hazard.summary}</p>
-      <h3>Efectos</h3>${list(hazard.effects)}
-      <h3>Contramedidas</h3>${list(hazard.countermeasures)}
-      <h3>Sistemas afectados</h3>
+      <h3>${t('Efectos')}</h3>${list(hazard.effects)}
+      <h3>${t('Contramedidas')}</h3>${list(hazard.countermeasures)}
+      <h3>${t('Sistemas afectados')}</h3>
       <div class="chips">${parts.map((p) => `<button class="chip" data-goto="crew" data-part="${p.id}">${p.name}</button>`).join('')}</div>`);
   }
 
   #glossary() {
     return `
       <div class="table-wrap"><table class="data-table data-table--text">
-        <thead><tr><th>Indicador</th><th>Rango normal</th><th>Cómo medirlo</th><th>Por qué importa</th></tr></thead>
+        <thead><tr>${['Indicador', 'Rango normal', 'Cómo medirlo', 'Por qué importa'].map((h) => `<th>${t(h)}</th>`).join('')}</tr></thead>
         <tbody>${INDICATORS.map((i) => `
           <tr><td><strong>${i.name}</strong></td><td class="nowrap">${i.normal[0]} – ${i.normal[1]} ${i.unit}</td><td>${i.measure}</td><td>${i.why}</td></tr>`).join('')}
         </tbody>
